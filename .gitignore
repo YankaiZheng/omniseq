@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+
+# Data files (large)
+*.fastq.gz
+*.fq.gz
+*.bam
+*.bai
+*.fa
+*.fai
+*.gtf
+*.bed
+*.bw
+results/
+data/
+fastq/
+bam/
+
+# Reference genomes (large, downloaded separately)
+ref/*
+!ref/.gitkeep
+*.bt2
+*.fa.gz
+
+# Environment
+.env
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# WeasyPrint cache
+.fonts/
+
+# Temp files
+/tmp/
+*.tmp

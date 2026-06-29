@@ -1,0 +1,74 @@
+{
+  "degs": {
+    "MvsC": {
+      "n_sig": 233,
+      "n_up": 139,
+      "n_down": 94,
+      "n_total": 18037,
+      "lfc_mean": -0.0021,
+      "lfc_std": 0.5571
+    },
+    "NvsC": {
+      "n_sig": 157,
+      "n_up": 100,
+      "n_down": 57,
+      "n_total": 16890,
+      "lfc_mean": -0.0049,
+      "lfc_std": 0.4844
+    },
+    "MvsN": {
+      "n_sig": 27,
+      "n_up": 7,
+      "n_down": 20,
+      "n_total": 16890,
+      "lfc_mean": 0.0087,
+      "lfc_std": 0.4113
+    }
+  },
+  "kegg": {
+    "MvsC": {
+      "names": [
+        "TNF signaling pathway",
+        "Rheumatoid arthritis",
+        "Malaria",
+        "IL-17 signaling pathway",
+        "Cytokine-cytokine receptor interaction",
+        "AGE-RAGE signaling pathway in diabetic complicatio",
+        "NF-kappa B signaling pathway",
+        "Bladder cancer"
+      ],
+      "pvals": [
+        6.8e-16,
+        3.9e-15,
+        4.85e-14,
+        1.98e-13,
+        8.6e-11,
+        5.54e-09,
+        1.78e-08,
+        2.27e-07
+      ]
+    },
+    "NvsC": {
+      "names": [
+        "Rheumatoid arthritis",
+        "Cytokine-cytokine receptor interaction",
+        "TNF signaling pathway",
+        "IL-17 signaling pathway",
+        "Malaria",
+        "African trypanosomiasis",
+        "Viral protein interaction with cytokine and cytoki",
+        "Influenza A"
+      ],
+      "pvals": [
+        3.44e-22,
+        1.11e-17,
+        1.59e-16,
+        6.94e-15,
+        1.81e-13,
+        5.52e-12,
+        1.08e-11,
+        4.95e-11
+      ]
+    }
+  }
+}

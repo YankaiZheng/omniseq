@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  rnaseq:
+    image: rnaseq-platform:latest
+    container_name: rnaseq-platform
+    ports:
+      - "5173:5173"
+    volumes:
+      # Mount reference genome (one-time download: scripts/download_ref.sh)
+      - ref_data:/data/ref
+      # Mount user FASTQ/BAM input directory
+      - ${INPUT_DIR:-~/rnaseq_input}:/data/input
+      # Mount output directory for results and PDF
+      - ${OUTPUT_DIR:-~/rnaseq_output}:/data/output
+    environment:
+      - REF_DIR=/data/ref
+      - INPUT_DIR=/data/input
+      - OUTPUT_DIR=/data/output
+    restart: unless-stopped
+
+volumes:
+  ref_data:

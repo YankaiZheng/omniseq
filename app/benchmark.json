@@ -1,0 +1,103 @@
+{
+  "platform": "RNA-seq E2E Platform",
+  "version": "1.0",
+  "benchmark_date": "2026-06-28",
+  "comparisons": {
+    "RNA-SeqEZPZ": {
+      "doi": "10.1093/gigascience/giaf133",
+      "year": 2026,
+      "journal": "GigaScience",
+      "matrix": {
+        "deployment": "Galaxy Server (requires Linux admin)",
+        "input_format": "FASTQ/BAM/count matrix",
+        "pipeline_depth": "FASTQ → QC → Alignment → DE → GO/KEGG",
+        "enrichment_method": "clusterProfiler (18 R package deps)",
+        "report_format": "HTML (interactive)",
+        "ai_agent": false,
+        "llm_interpretation": false,
+        "drug_target": false,
+        "chart_count": "~30 interactive",
+        "per_sample_charts": false,
+        "container_support": "Galaxy toolshed",
+        "citation": "Taslim et al., GigaScience (2026)"
+      }
+    },
+    "SeqExpressionAnalyser": {
+      "doi": "10.1177/11779322251385931",
+      "year": 2026,
+      "journal": "Bioinform Biol Insights",
+      "matrix": {
+        "deployment": "R Shiny (requires R Server)",
+        "input_format": "FASTQ",
+        "pipeline_depth": "FASTQ → QC → Alignment → DE only",
+        "enrichment_method": "None",
+        "report_format": "None (no report)",
+        "ai_agent": false,
+        "llm_interpretation": false,
+        "drug_target": false,
+        "chart_count": "~15 static",
+        "per_sample_charts": false,
+        "container_support": false,
+        "citation": "Esskhayry et al., Bioinform Biol Insights (2026)"
+      }
+    },
+    "IAN": {
+      "doi": "10.1016/j.crmeth.2026.101503",
+      "year": 2026,
+      "journal": "Cell Reports Methods",
+      "matrix": {
+        "deployment": "Web (requires compute backend)",
+        "input_format": "Omics data (multi-type)",
+        "pipeline_depth": "General omics analysis (not RNA-seq specific)",
+        "enrichment_method": "AI-driven",
+        "report_format": "Interactive results",
+        "ai_agent": true,
+        "llm_interpretation": true,
+        "drug_target": false,
+        "chart_count": "Variable (AI-generated)",
+        "per_sample_charts": false,
+        "container_support": false,
+        "citation": "Nagarajan et al., Cell Reports Methods (2026)"
+      }
+    },
+    "OURS": {
+      "deployment": "Docker / WSL2 (single command start)",
+      "input_format": "FASTQ / BAM / count matrix",
+      "pipeline_depth": "FASTQ → QC → Alignment → DE → KEGG/GO/PPI → PDF + LLM conclusion",
+      "enrichment_method": "STRING REST API (zero R deps) + offline KEGG fallback",
+      "report_format": "Academic PDF (9 chapters, 150+ charts, dpi=300)",
+      "ai_agent": true,
+      "llm_interpretation": true,
+      "drug_target": true,
+      "chart_count": "150+ (auto-scales with sample count)",
+      "per_sample_charts": true,
+      "container_support": "Docker image + docker-compose",
+      "unique_features": [
+        "STRING API enrichment (PubMed: 0 papers)",
+        "LLM ReAct Agent for RNA-seq (40+ tools)",
+        "FASTQ → Drug target ranking",
+        "Per-sample individual publication-grade charts",
+        "API-driven architecture (backend/agent decoupled)"
+      ]
+    }
+  },
+  "quantitative_metrics": {
+    "DEG_concordance": {
+      "note": "Compared against nf-core/rnaseq v3.14 on 9-sample dataset",
+      "MvsC_overlap": "pending",
+      "NvsC_overlap": "pending",
+      "runtime_vs_nfcore": "pending"
+    },
+    "enrichment_concordance": {
+      "note": "STRING API vs clusterProfiler comparison",
+      "KEGG_top10_overlap": "pending",
+      "GO_BP_top10_overlap": "pending"
+    },
+    "chart_quality": {
+      "dpi": 300,
+      "auto_parameter_optimization": true,
+      "real_data_driven": true,
+      "per_sample_format": true
+    }
+  }
+}

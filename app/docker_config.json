@@ -1,0 +1,14 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "ref_dir": "/data/ref",
+  "input_dir": "/data/input", 
+  "output_dir": "/data/output",
+  "host": "0.0.0.0",
+  "port": 5173,
+  "debug": false,
+  "threads": 4,
+  "hisat2_index": "grch38/genome",
+  "gtf_file": "gencode.v44.annotation.gtf",
+  "bed_file": "human.bed",
+  "adapter_file": ""
+}
