@@ -229,12 +229,21 @@ omniseq/
 
 ```
 @software{omniseq2026,
-  author = {Zheng, Yankai},
+  author = {Zheng, Yankai and Sun, Minqiao and Hu, Yuxuan},
   title = {OmniSeq: An AI Agent-Driven End-to-End RNA-seq Analysis Platform},
   year = {2026},
   url = {https://github.com/YankaiZheng/omniseq}
 }
 ```
+
+## Contributors
+
+| Name | Role |
+|------|------|
+| **Yankai Zheng** | Lead Developer, System Architecture, AI Agent Design |
+| **Minqiao Sun** | Platform Development, Pipeline Engineering |
+| **Yuxuan Hu** | Data Analysis, Visualization, Machine Learning |
+
 
 ## License
 
