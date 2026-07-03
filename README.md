@@ -240,9 +240,9 @@ omniseq/
 
 | Name | Role |
 |------|------|
-| **Yankai Zheng** | Lead Developer, System Architecture, AI Agent Design |
+| **Yankai Zheng** | Lead Developer: System Architecture, AI Agent, Pipeline, Data Analysis, Charts, Docker, ML/DL, Documentation |
 | **Minqiao Sun** | Platform Development, Pipeline Engineering |
-| **Yuxuan Hu** | Data Analysis, Visualization, Machine Learning |
+| **Yuxuan Hu** | Visualization Consulting |
 
 
 ## License
