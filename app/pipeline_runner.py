@@ -15,25 +15,34 @@ from collections import defaultdict
 # ============================================================
 # 默认配置
 # ============================================================
+# Load env-based overrides (Docker or local)
+_ENV = os.environ
+_REF = _ENV.get("REF_DIR", "/data/ref")
+_INP = _ENV.get("INPUT_DIR", "/data/input")
+_OUT = _ENV.get("OUTPUT_DIR", "/data/output")
+_REMOTE = _ENV.get("REMOTE_SERVER", "")  # Empty = local only
+_BAM_DIR = _ENV.get("BAM_DIR", _OUT)
+
 DEFAULT_CONFIG = {
     "tools": {
-        "fastp": "fastp",
-        "hisat2": "hisat2",
-        "samtools": "samtools",
-        "featureCounts": "featureCounts",
-        "Rscript": "Rscript",
-        "python": "python3"
+        "fastp": _ENV.get("FASTP_PATH", "fastp"),
+        "hisat2": _ENV.get("HISAT2_PATH", "hisat2"),
+        "samtools": _ENV.get("SAMTOOLS_PATH", "samtools"),
+        "featureCounts": _ENV.get("FEATURECOUNTS_PATH", "featureCounts"),
+        "Rscript": _ENV.get("RSCRIPT_PATH", "Rscript"),
+        "python": _ENV.get("PYTHON_PATH", "python3")
     },
     "reference": {
-        "hisat2_index": "/data1/lxy/ref/GRCh38_index",  # 本地路径 或 远程路径
-        "gtf": "/data1/lxy/ref/GCF_000001405.40_GRCh38.p14_genomic.gtf",
-        "genome": "GRCh38",
-        "remote_server": "stu2@58.206.100.96",  # 远程服务器(为空则本地运行)
-        "remote_align": False  # True=在远程服务器跑比对
+        "hisat2_index": _ENV.get("HISAT2_INDEX", os.path.join(_REF, "grch38_index")),
+        "gtf": _ENV.get("GTF_FILE", os.path.join(_REF, "gencode.v44.annotation.gtf")),
+        "genome": _ENV.get("GENOME", "GRCh38"),
+        "remote_server": _REMOTE,
+        "remote_align": bool(_ENV.get("REMOTE_ALIGN", "")) if _ENV.get("REMOTE_ALIGN") else False
     },
-    "threads": 8,
-    "DESeq2_script": None,  # 内置 R 脚本，不需要外部文件
-    "kegg_offline_db": None  # kegg_offline.json 路径
+    "threads": int(_ENV.get("THREADS", "8")),
+    "bam_dir": _BAM_DIR,
+    "DESeq2_script": None,
+    "kegg_offline_db": _ENV.get("KEGG_DB", os.path.join(_OUT, "kegg_offline.json"))
 }
 
 # ============================================================
@@ -98,8 +107,8 @@ class PipelineRunner:
             str(self.output_dir),
             self.config.get("bam_dir", ""),
             str(self.fastq_dir),
-            "/mnt/d/HuNan",
-            "/home/yankai/rnaseq_pipeline/results/e2e_test",
+            os.environ.get("BAM_DIR", ""),
+            os.path.join(os.environ.get("OUTPUT_DIR", "/data/output"), "bam"),
         ]
         for sample, _, _ in fastq_pairs:
             found = False
@@ -355,7 +364,9 @@ cat(sprintf("{g1}vs{g2}: %d DEGs\\n", sum(res$padj < 0.05, na.rm=TRUE)))
         """使用离线 KEGG 数据库做富集分析"""
         db_path = self.config.get("kegg_offline_db") or os.path.join(os.path.dirname(__file__), "kegg_offline.json")
         if not os.path.exists(db_path):
-            db_path = "/mnt/d/dist/kegg_offline.json"
+            db_path = os.path.join(self.output_dir, "kegg_offline.json")
+        if not os.path.exists(db_path):
+            db_path = os.path.join(os.environ.get("OUTPUT_DIR", "/data/output"), "kegg_offline.json")
         if not os.path.exists(db_path):
             self.emitter.emit("enrich", "warn", "KEGG 离线数据库未找到")
             return {}
@@ -424,13 +435,12 @@ cat(sprintf("{g1}vs{g2}: %d DEGs\\n", sum(res$padj < 0.05, na.rm=TRUE)))
         gtf = self.config["reference"]["gtf"]
         remote_out = f"/tmp/rnaseq_e2e_{os.getpid()}"
         
-        # Map local paths to server paths
+        # Map local paths to server paths (configurable via env)
+        remote_data_dir = os.environ.get("REMOTE_DATA_DIR", "/data/input")
         path_map = {}
         for sample, r1, r2 in fastq_pairs:
-            # Try mapping /home/yankai/.../test_data -> /data3/algo_team/HuNan
             for local, remote in [
-                ("/home/yankai/rnaseq_pipeline/test_data/", "/data3/algo_team/HuNan/"),
-                ("/mnt/d/HuNan/", "/data3/algo_team/HuNan/"),
+                (os.environ.get("INPUT_DIR", "/data/input") + "/", remote_data_dir + "/"),
             ]:
                 if local in r1:
                     path_map[r1] = remote + r1.split("/")[-1]

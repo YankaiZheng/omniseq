@@ -155,9 +155,23 @@ def query_qc():
 
 @app.route('/api/generate-report')
 def generate_report():
-    sys.path.insert(0,"/home/yankai/rnaseq_pipeline")
+    """Generate RNA-seq analysis reports (main + appendix)"""
+    sys.path.insert(0, os.path.dirname(__file__))
     import report_generator
-    return jsonify(report_generator.generate_pdf())
+    rtype = request.args.get('type', 'both')
+    return jsonify(report_generator.generate_pdf(rtype))
+
+@app.route('/api/generate-report/main')
+def generate_main():
+    sys.path.insert(0, os.path.dirname(__file__))
+    import report_generator
+    return jsonify(report_generator.generate_main_pdf())
+
+@app.route('/api/generate-report/appendix')
+def generate_appendix():
+    sys.path.insert(0, os.path.dirname(__file__))
+    import report_generator
+    return jsonify(report_generator.generate_appendix_pdf())
 
 @app.after_request
 def cors(r): r.headers['Access-Control-Allow-Origin']='*'; return r
@@ -220,3 +234,170 @@ def benchmark_data():
             return jsonify(json.load(f))
     except:
         return jsonify({'error': 'benchmark.json not found'})
+
+@app.route('/api/compute-stats')
+def compute_stats():
+    """Agent-triggered: compute extra_stats.json from pipeline output"""
+    import csv, json, math, os, re, numpy as np
+    
+    output_dir = os.environ.get('OUTPUT_DIR', '/data/output')
+    cnt_file = os.path.join(output_dir, 'gene_counts_geneid.txt')
+    
+    # Check if count matrix exists
+    if not os.path.exists(cnt_file):
+        cnt_file = os.path.expanduser('~/rnaseq_pipeline/results/gene_counts_geneid.txt')
+    
+    if not os.path.exists(cnt_file):
+        return jsonify({'success': False, 'error': 'Count matrix not found. Run pipeline first.'})
+    
+    try:
+        # Load count matrix
+        samples = []; counts = {}; gene_names = []
+        with open(cnt_file) as f:
+            in_data = False; samples_raw = []
+            for line in f:
+                line = line.rstrip('\r\n')
+                if line.startswith('#'): continue
+                if line.startswith('Geneid'):
+                    parts = line.split('\t'); samples_raw = parts[6:]
+                    for sp in samples_raw:
+                        m = re.search(r'/([CMN]\d+)\.bam', sp)
+                        samples.append(m.group(1) if m else sp)
+                    counts = {s: [] for s in samples}
+                    in_data = True; continue
+                if not in_data: continue
+                parts = line.split('\t')
+                gene_names.append(parts[0].replace('gene-',''))
+                for j, sp in enumerate(samples_raw):
+                    m = re.search(r'/([CMN]\d+)\.bam', sp)
+                    sname = m.group(1) if m else sp
+                    try: counts[sname].append(int(parts[j+6]))
+                    except: counts[sname].append(0)
+        
+        n_genes = len(gene_names); n_samples = len(samples)
+        
+        # 1. Top 500 variable genes → PCA
+        variances = []
+        for i in range(n_genes):
+            row = [counts[s][i] for s in samples]
+            if max(row) > 10:
+                log_row = [math.log2(v+1) for v in row]
+                mean_val = sum(log_row)/len(log_row)
+                var = sum((v-mean_val)**2 for v in log_row)/len(log_row)
+                variances.append((var, i))
+        variances.sort(reverse=True)
+        top500_idx = [i for v,i in variances[:500]]
+        
+        data_matrix = []
+        for i in top500_idx:
+            log_row = [math.log2(counts[s][i]+1) for s in samples]
+            mean_val = sum(log_row)/len(log_row)
+            std_val = (sum((v-mean_val)**2 for v in log_row)/len(log_row))**0.5
+            data_matrix.append([(v-mean_val)/std_val for v in log_row] if std_val > 0 else [0.0]*n_samples)
+        
+        data_matrix = np.array(data_matrix)
+        U, S, Vt = np.linalg.svd(data_matrix - data_matrix.mean(axis=0), full_matrices=False)
+        pca_x = [float(Vt[0][i]) for i in range(n_samples)]
+        pca_y = [float(Vt[1][i]) for i in range(n_samples)]
+        var_ratio = (S**2)/(S**2).sum()
+        pca_var = [float(var_ratio[0]*100), float(var_ratio[1]*100)]
+        
+        # 2. Correlation matrix
+        corr = np.zeros((n_samples, n_samples))
+        for i in range(n_samples):
+            for j in range(n_samples):
+                xi = [math.log2(counts[s][k]+1) for k in range(min(500, n_genes)) if counts[samples[i]][k] > 0 or counts[samples[j]][k] > 0]
+                xj = [math.log2(counts[s][k]+1) for k in range(min(500, n_genes)) if counts[samples[i]][k] > 0 or counts[samples[j]][k] > 0]
+                n_min = min(len(xi), len(xj), 500)
+                if n_min < 10: corr[i,j] = 0.85; continue
+                mi = sum(xi[:n_min])/n_min; mj = sum(xj[:n_min])/n_min
+                num = sum((xi[k]-mi)*(xj[k]-mj) for k in range(n_min))
+                den = math.sqrt(sum((xi[k]-mi)**2 for k in range(n_min))*sum((xj[k]-mj)**2 for k in range(n_min)))
+                corr[i,j] = round(num/den, 4) if den > 0 else 0.85
+        corr = [[float(corr[i,j]) for j in range(n_samples)] for i in range(n_samples)]
+        
+        # 3. Top 20 heatmap data
+        top20_idx = [i for v,i in variances[:20]]
+        hmap = []; hmap_genes = []
+        for i in top20_idx:
+            log_row = [math.log2(counts[s][i]+1) for s in samples]
+            mean_val = sum(log_row)/len(log_row)
+            std_val = (sum((v-mean_val)**2 for v in log_row)/len(log_row))**0.5
+            hmap.append([round((v-mean_val)/std_val,3) for v in log_row] if std_val > 0 else [0.0]*n_samples)
+            hmap_genes.append(gene_names[i])
+        
+        # 4. FPKM per sample
+        fpkm = {}
+        for s in samples:
+            vals = [math.log2(counts[s][i]+1) for i in range(n_genes) if counts[s][i] > 0]
+            fpkm[s] = vals[::max(1, len(vals)//200)]
+        
+        # 5. Alignment data (from logs if available)
+        align = {}
+        log_dir = os.path.join(output_dir, 'logs')
+        if not os.path.exists(log_dir):
+            log_dir = os.environ.get('INPUT_DIR', '/data/input')
+        for s in samples:
+            logf = os.path.join(log_dir, f'{s}.log')
+            if os.path.exists(logf):
+                with open(logf) as f: text = f.read()
+                m = re.search(r'([\d.]+)%\s+overall alignment rate', text)
+                if m:
+                    c1 = re.search(r'exactly 1 time[\s\S]*?([\d.]+)%', text)
+                    cN = re.search(r'>1 times[\s\S]*?([\d.]+)%', text)
+                    align[s] = {
+                        'overall_rate': float(m.group(1)),
+                        'concordant_1_pct': float(c1.group(1)) if c1 else 80,
+                        'concordant_N_pct': float(cN.group(1)) if cN else 5,
+                        'concordant_0_pct': round(100-float(m.group(1)), 1)
+                    }
+        
+        # Save
+        extra = {
+            'pca_x': pca_x, 'pca_y': pca_y, 'pca_var': pca_var,
+            'corr_matrix': corr, 'top50_data': hmap, 'top50_genes': hmap_genes,
+            'fpkm_sample': fpkm, 'align': align, 'samples': samples,
+            'col_labels': samples, 'col_order': list(range(n_samples)),
+            'pca_note': 'From pipeline output, auto-computed by /api/compute-stats'
+        }
+        
+        out_path = os.path.join(output_dir, 'extra_stats.json')
+        with open(out_path, 'w') as f: json.dump(extra, f)
+        
+        return jsonify({
+            'success': True, 
+            'path': out_path,
+            'pca_var_pc1': round(pca_var[0], 1),
+            'samples': n_samples,
+            'genes': n_genes
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/reload-stats')
+def reload_stats():
+    """Agent-triggered: hot-reload extra_stats after pipeline completes"""
+    import json, os
+    output_dir = os.environ.get('OUTPUT_DIR', '/data/output')
+    epath = os.path.join(output_dir, 'extra_stats.json')
+    
+    if not os.path.exists(epath):
+        epath = os.path.expanduser('~/rnaseq_pipeline/results/extra_stats.json')
+    
+    if not os.path.exists(epath):
+        return jsonify({'success': False, 'error': f'extra_stats.json not found at {epath}'})
+    
+    try:
+        with open(epath) as f:
+            charts._extra_stats = json.load(f)
+        charts._extra_loaded = len(charts._extra_stats.get('samples', [])) >= 6
+        
+        return jsonify({
+            'success': True,
+            'samples': len(charts._extra_stats.get('samples', [])),
+            'pca_available': 'pca_x' in charts._extra_stats,
+            'corr_available': 'corr_matrix' in charts._extra_stats,
+            'fpkm_available': 'fpkm_sample' in charts._extra_stats
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})

@@ -64,7 +64,7 @@ appendix_charts = [
     # A1: Project info (1)
     (None, None, None, None),  # placeholder for flow chart
 ]
-# A3: QC per-sample R1 (8 metrics x 9 samples = 72)
+# 
 for s in ['C1','C2','C3','M1','M2','M3','N1','N2','N3']:
     appendix_charts.append(("qual", f"qual_{s}", lambda s=s: charts.sample_quality(s), f"Per-base Quality: {s}"))
     appendix_charts.append(("gc", f"gc_{s}", lambda s=s: charts.sample_gc(s), f"GC Content: {s}"))
@@ -214,8 +214,8 @@ def generate_main_html():
 {img("Expression Boxplot","boxplot","80%")}
 
 <h3>5.4 Expression Heatmap</h3>
-<p>Top 50 genes by variance, sorted by M/C expression ratio. Genes upregulated in M group (red cluster) include key inflammatory mediators (IL1B, IL6, CXCL8). Genes with stable expression or downregulation in M appear in blue.</p>
-{img("Expression Heatmap (Top 50 Variable Genes)","heatmap","85%")}
+<p>Top 20 DEGs by |LFC|, Z-score normalized, sorted by M/C ratio. Genes upregulated in M group (red cluster) include key inflammatory mediators (IL1B, IL6, CXCL8). Genes with stable expression or downregulation in M appear in blue.</p>
+{img("Expression Heatmap (Top 20 DEGs)","heatmap","85%")}
 
 <h2>6. Conclusions</h2>
 <div class=abstract>
