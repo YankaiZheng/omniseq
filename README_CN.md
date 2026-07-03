@@ -9,6 +9,10 @@
 
 **从 FASTQ 到可发表 PDF — 一行命令，零人工干预**
 
+<p align="center">
+  <img src="docs/images/banner.png" alt="OmniSeq Banner" width="100%">
+</p>
+
 [English](README.md) · [快速开始](#快速开始) · [核心功能](#核心功能) · [系统架构](#系统架构) · [API 文档](#api-端点) · [基准结果](#实验结果)
 
 </div>
