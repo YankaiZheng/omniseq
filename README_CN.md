@@ -270,8 +270,8 @@ omniseq/
 
 | 姓名 | 角色 |
 |------|------|
-| **Yankai Zheng** | 项目总负责：系统架构、AI Agent、管线、数据分析、Docker、机器学习 |
-| **Minqiao Sun** | 图表开发、文档编写 |
+| **Yankai Zheng** | 项目总负责：系统架构、AI Agent、数据分析、Docker、机器学习 |
+| **Minqiao Sun** | 管线工程、图表开发、文档编写 |
 | **Yuxuan Hu** | 平台设计、可视化建议 |
 
 
