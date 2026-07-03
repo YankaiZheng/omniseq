@@ -112,11 +112,32 @@ docker-compose up -d
 
 ```bash
 # Chart endpoints (28)
-GET /api/chart/volcano/MvsC         → Volcano plot (base64 PNG)
-GET /api/chart/heatmap              → Expression heatmap (top 20 DEGs)
-GET /api/chart/pca                  → PCA (DEG-only SVD, PC1=74.7%)
-GET /api/chart/go_string/MvsC       → GO enrichment (STRING API)
-... (59 chart functions total)
+GET /api/chart/volcano/<comp>          → Volcano plot (comp: MvsC | NvsC | MvsN)
+GET /api/chart/heatmap                 → Expression heatmap (top 20 DEGs)
+GET /api/chart/pca                     → PCA (DEG-only SVD, PC1=74.7%)
+GET /api/chart/ma/<comp>               → MA plot (comp: MvsC | NvsC | MvsN)
+GET /api/chart/boxplot                 → Expression boxplot (DEG-only)
+GET /api/chart/correlation             → Sample correlation matrix (DEG-only)
+GET /api/chart/kegg/<comp>             → KEGG pathway enrichment bars
+GET /api/chart/gene/<gene>             → Gene expression bar chart (e.g., IL1B)
+GET /api/chart/venn                    → DEG overlap Venn diagram
+GET /api/chart/density                 → Expression density distribution
+GET /api/chart/qc_error                → Per-base sequencing error rate
+GET /api/chart/qc_gc                   → GC content distribution
+GET /api/chart/qc_filter               → Read filtering classification pie
+GET /api/chart/chrom_density           → Chromosome read density bar
+GET /api/chart/ppi                     → PPI network (STRING API real-time)
+GET /api/chart/read_dist               → Read assignment distribution
+GET /api/chart/gene_cov                → Gene body coverage curve
+GET /api/chart/insert                  → Insert size distribution
+GET /api/chart/saturation              → Sequencing saturation curve
+GET /api/chart/kegg_pathway            → KEGG pathway diagram (KEGG API PNG)
+GET /api/chart/go                      → GO enrichment bar chart
+GET /api/chart/go_dag_bp               → GO DAG: Biological Process
+GET /api/chart/go_dag_mf               → GO DAG: Molecular Function
+GET /api/chart/go_dag_cc               → GO DAG: Cellular Component
+GET /api/chart/kegg_updown/<comp>      → KEGG DEG up/down distribution
+GET /api/chart/multi_qc                → Multi-sample QC comparison
 
 # Query endpoints (4)
 GET /api/query/degs?comp=MvsC&top=20   → Top DEGs with LFC and padj

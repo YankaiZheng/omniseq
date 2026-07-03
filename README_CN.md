@@ -124,14 +124,32 @@ OmniSeq 采用四层分离架构，每层职责明确，层间通过标准化接
 ### 图表端点（28 个）
 
 ```bash
-GET /api/chart/volcano/<comp>      # 火山图（comp: MvsC/NvsC/MvsN）
-GET /api/chart/heatmap             # 表达热图（Top 20 DEG）
-GET /api/chart/pca                 # PCA（DEG-only SVD, PC1=74.7%）
-GET /api/chart/kegg/<comp>         # KEGG 通路富集（clusterProfiler 离线数据）
-GET /api/chart/go_string/<comp>    # GO 富集（STRING API 实时查询）
-GET /api/chart/ppi                 # PPI 蛋白互作网络（STRING API）
-GET /api/chart/kegg_pathway        # KEGG 通路图（KEGG API 官方 PNG）
-# ... 共 59 个 chart 函数
+GET /api/chart/volcano/<comp>          → 火山图（comp: MvsC | NvsC | MvsN）
+GET /api/chart/heatmap                 → 表达热图（Top 20 DEG）
+GET /api/chart/pca                     → PCA（DEG-only SVD, PC1=74.7%）
+GET /api/chart/ma/<comp>               → MA 图
+GET /api/chart/boxplot                 → 表达箱线图（DEG-only FPKM）
+GET /api/chart/correlation             → 样本相关性矩阵（DEG-only Pearson）
+GET /api/chart/kegg/<comp>             → KEGG 通路富集条形图
+GET /api/chart/gene/<gene>             → 基因表达柱状图（如 IL1B）
+GET /api/chart/venn                    → DEG 重叠 Venn 图
+GET /api/chart/density                 → 表达密度分布
+GET /api/chart/qc_error                → Per-base 测序错误率
+GET /api/chart/qc_gc                   → GC 含量分布
+GET /api/chart/qc_filter               → Read 过滤分类饼图
+GET /api/chart/chrom_density           → 染色体 Read 密度
+GET /api/chart/ppi                     → PPI 蛋白互作网络（STRING API 实时）
+GET /api/chart/read_dist               → Read 分配分布
+GET /api/chart/gene_cov                → 基因覆盖度曲线
+GET /api/chart/insert                  → 插入片段分布
+GET /api/chart/saturation              → 测序饱和度曲线
+GET /api/chart/kegg_pathway            → KEGG 通路图（KEGG API PNG）
+GET /api/chart/go                      → GO 富集柱状图
+GET /api/chart/go_dag_bp               → GO DAG: 生物过程
+GET /api/chart/go_dag_mf               → GO DAG: 分子功能
+GET /api/chart/go_dag_cc               → GO DAG: 细胞组分
+GET /api/chart/kegg_updown/<comp>      → KEGG DEG 上调/下调分布
+GET /api/chart/multi_qc                → 多样本质控对比
 ```
 
 ### 查询端点（4 个）
