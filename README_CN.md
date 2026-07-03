@@ -15,6 +15,14 @@
 
 ---
 
+<div align="center">
+
+⚠️ **早期开发阶段通告**：OmniSeq 目前处于活跃开发阶段，已在 WSL2 环境的 9 样本数据集上完成全流程验证。跨机器可复现性测试正在进行中。欢迎通过 [GitHub Issues](https://github.com/YankaiZheng/omniseq/issues) 提交 bug 报告和贡献代码。
+
+</div>
+
+---
+
 ## 项目简介
 
 OmniSeq 是一个**以 AI Agent 为核心**、**基于 Docker** 的端到端 RNA-seq 全自动化分析平台。它将 7 个相互独立的命令行工具（fastp → HISAT2 → samtools → featureCounts → DESeq2 → 功能富集 → PDF 报告）编排为一个无缝的自动化系统，用户通过浏览器中的自然语言 ChatPanel 即可完成从 FASTQ 原始文件到双文档学术 PDF 报告的完整分析流程。

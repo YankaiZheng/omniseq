@@ -15,6 +15,14 @@
 
 ---
 
+<div align="center">
+
+⚠️ **Early-Stage Notice**: OmniSeq is currently under active development and has been validated on a single 9-sample dataset in a WSL2 environment. Cross-machine reproducibility testing is in progress. We welcome bug reports and contributions through [GitHub Issues](https://github.com/YankaiZheng/omniseq/issues).
+
+</div>
+
+---
+
 ## Overview
 
 OmniSeq is an **AI Agent-driven**, **Docker-based** end-to-end RNA-seq analysis platform. It orchestrates seven independent command-line tools (fastp → HISAT2 → samtools → featureCounts → DESeq2 → enrichment → PDF) into a single automated pipeline, accessible through a natural-language ChatPanel interface.
